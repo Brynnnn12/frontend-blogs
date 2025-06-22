@@ -1,10 +1,38 @@
+import { useState } from "react";
+
+import CommentTable from "../../../components/Layouts/Dashboard/Comments/CommentTable";
+import CommentModal from "../../../components/Layouts/Dashboard/Comments/CommentModal";
+
 export default function Comments() {
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editData, setEditData] = useState(null);
+
+  const handleCreate = () => {
+    setEditData(null);
+    setModalOpen(true);
+  };
+
+  const handleEdit = (data) => {
+    setEditData(data);
+    setModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
+    setEditData(null);
+  };
+
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold text-center mb-6">Comments</h2>
-        <p className="text-center text-gray-600">This is the Comments page.</p>
-      </div>
+    <div className="p-4">
+      <CommentTable onEdit={handleEdit} onCreate={handleCreate} />
+
+      {/* Modal Form Tambah/Edit */}
+      <CommentModal
+        isOpen={modalOpen}
+        onClose={handleCloseModal}
+        editData={editData}
+        onSubmit={() => {}}
+      />
     </div>
   );
 }
