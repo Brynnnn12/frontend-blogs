@@ -11,7 +11,8 @@ const BlogCarousel = () => {
         "Pelajari strategi terbaru untuk memulai bisnis online yang sukses di era digital saat ini.",
       date: "15 Juni 2023",
       category: "Bisnis",
-      imageUrl: "https://source.unsplash.com/random/600x400/?business",
+      imageUrl:
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT6g10Sw9do2EIowWd7Uugp_Vq2fVH5DT50Sg&s",
     },
     {
       id: 2,
@@ -20,7 +21,8 @@ const BlogCarousel = () => {
         "Eksplorasi teknologi web terbaru yang akan mengubah cara kita membangun aplikasi.",
       date: "10 Juni 2023",
       category: "Teknologi",
-      imageUrl: "https://source.unsplash.com/random/600x400/?technology",
+      imageUrl:
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT6g10Sw9do2EIowWd7Uugp_Vq2fVH5DT50Sg&s",
     },
     {
       id: 3,
@@ -29,7 +31,8 @@ const BlogCarousel = () => {
         "Mulai perjalanan Anda dalam dunia desain antarmuka pengguna dengan panduan ini.",
       date: "5 Juni 2023",
       category: "Desain",
-      imageUrl: "https://source.unsplash.com/random/600x400/?design",
+      imageUrl:
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT6g10Sw9do2EIowWd7Uugp_Vq2fVH5DT50Sg&s",
     },
     {
       id: 4,
@@ -38,7 +41,8 @@ const BlogCarousel = () => {
         "Temukan cara meningkatkan penjualan dengan strategi marketing digital terbaru.",
       date: "1 Juni 2023",
       category: "Marketing",
-      imageUrl: "https://source.unsplash.com/random/600x400/?marketing",
+      imageUrl:
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT6g10Sw9do2EIowWd7Uugp_Vq2fVH5DT50Sg&s",
     },
     {
       id: 5,
@@ -47,7 +51,8 @@ const BlogCarousel = () => {
         "Pentingnya menjaga kesehatan mental dalam lingkungan kerja yang kompetitif.",
       date: "28 Mei 2023",
       category: "Kesehatan",
-      imageUrl: "https://source.unsplash.com/random/600x400/?health",
+      imageUrl:
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT6g10Sw9do2EIowWd7Uugp_Vq2fVH5DT50Sg&s",
     },
   ];
 

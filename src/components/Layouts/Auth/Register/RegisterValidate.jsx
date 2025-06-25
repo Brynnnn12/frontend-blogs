@@ -6,7 +6,11 @@ export default function AuthForm({
   validationSchema,
   onSubmit,
 }) {
-  const authSchema = Yup.object().shape({
+  const registerSchema = Yup.object().shape({
+    username: Yup.string()
+      .min(3, "Username minimal 3 karakter")
+      .max(20, "Username maksimal 20 karakter")
+      .required("Username wajib diisi"),
     email: Yup.string()
       .email("Email tidak valid")
       .required("Email wajib diisi"),
@@ -18,12 +22,23 @@ export default function AuthForm({
   return (
     <Formik
       initialValues={initialValues}
-      validationSchema={validationSchema || authSchema}
+      validationSchema={validationSchema || registerSchema}
       onSubmit={onSubmit}
       enableReinitialize
     >
       {({ isSubmitting }) => (
         <Form className="space-y-6">
+          <Field
+            name="username"
+            type="text"
+            className="input input-bordered w-full bg-white text-gray-800"
+            placeholder="Username"
+          />
+          <ErrorMessage
+            name="username"
+            component="div"
+            className="text-red-500 text-sm"
+          />
           <Field
             name="email"
             type="email"

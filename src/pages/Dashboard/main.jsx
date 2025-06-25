@@ -1,12 +1,22 @@
 export default function DashboardMain() {
+  const countBlog = 10; // Example count of blogs
+
+  const countCategory = 5; // Example count of categories
+
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold text-center mb-6">Dashboard</h2>
-        <p className="text-center text-gray-600">
-          This is the main dashboard page.
-        </p>
+    //card
+    <>
+      <div className=" grid grid-cols-1 lg:grid-cols-2 gap-4 p-4">
+        <div className="bg-blue-500 p-4 rounded shadow">
+          <h2 className="text-xl  font-bold mb-2">Total Blogs</h2>
+          <p className="text-2xl ">{countBlog}</p>
+        </div>
+
+        <div className="bg-blue-500 p-4 rounded shadow">
+          <h2 className="text-xl font-bold mb-2">Total Categories</h2>
+          <p className="text-2xl ">{countCategory}</p>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

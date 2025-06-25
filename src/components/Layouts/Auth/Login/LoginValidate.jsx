@@ -1,12 +1,12 @@
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 
-export default function AuthForm({
+export default function LoginValidate({
   initialValues,
   validationSchema,
   onSubmit,
 }) {
-  const authSchema = Yup.object().shape({
+  const loginSchema = Yup.object().shape({
     email: Yup.string()
       .email("Email tidak valid")
       .required("Email wajib diisi"),
@@ -18,7 +18,7 @@ export default function AuthForm({
   return (
     <Formik
       initialValues={initialValues}
-      validationSchema={validationSchema || authSchema}
+      validationSchema={validationSchema || loginSchema}
       onSubmit={onSubmit}
       enableReinitialize
     >

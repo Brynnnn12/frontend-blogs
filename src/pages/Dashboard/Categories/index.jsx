@@ -29,7 +29,7 @@ export default function Categories() {
       <CategoryModal
         isOpen={modalOpen}
         onClose={handleCloseModal}
-        data={editData}
+        editData={editData}
       />
     </div>
   );

@@ -1,38 +1,63 @@
+import { useDispatch, useSelector } from "react-redux";
 import CategoryForm from "./CategoryForm";
+import { useEffect } from "react";
+import {
+  createCategory,
+  updateCategory,
+  resetCategoryState,
+} from "../../../../store/Categories/categorySlice";
 
-export default function CategoryModal({ isOpen, onClose, editData, onSubmit }) {
-  const handleSubmit = (values, { resetForm }) => {
-    onSubmit(values, editData); // Parent handle tambah/edit
+export default function CategoryModal({ isOpen, onClose, editData }) {
+  const dispatch = useDispatch();
+  const { loading, success, error } = useSelector((state) => state.categories);
+
+  // Tutup modal dan reset state jika sukses
+  useEffect(() => {
+    if (success) {
+      onClose();
+      dispatch(resetCategoryState());
+    }
+  }, [success, dispatch, onClose]);
+
+  // Submit handler
+  const handleSubmit = async (values, { resetForm }) => {
+    if (editData) {
+      await dispatch(updateCategory({ slug: editData.slug, data: values }));
+    } else {
+      await dispatch(createCategory(values));
+    }
+
     resetForm();
-    onClose();
   };
 
+  console.log("✅ isOpen:", isOpen);
+  console.log("✅ editData:", editData);
+
   return (
-    <dialog
-      id="service_modal"
-      className={`modal ${isOpen ? "modal-open" : ""}`}
-    >
-      <div className="modal-box bg-white text-gray-800 rounded-xl shadow-lg">
-        <h3 className="font-bold text-2xl text-primary mb-4">
-          {editData ? "Edit Layanan" : "Tambah Layanan"}
-        </h3>
+    isOpen && (
+      <dialog open className="modal modal-open">
+        <div className="modal-box bg-white text-black max-w-sm lg:max-w-lg w-full relative">
+          <button
+            onClick={onClose}
+            className="btn btn-sm btn-circle btn-ghost absolute right-4 top-4"
+          >
+            ✕
+          </button>
 
-        <button
-          onClick={onClose}
-          className="btn btn-sm btn-circle btn-ghost absolute right-4 top-4"
-        >
-          ✕
-        </button>
+          <h3 className="font-bold text-2xl mb-6 text-center">
+            {editData ? "Edit Kategori" : "Tambah Kategori"}
+          </h3>
 
-        <CategoryForm
-          initialValues={{
-            name: editData?.name || "",
-            description: editData?.description || "",
-          }}
-          onSubmit={handleSubmit}
-          loading={false}
-        />
-      </div>
-    </dialog>
+          <CategoryForm
+            initialValues={{
+              name: editData ? editData.name : "",
+            }}
+            onSubmit={handleSubmit}
+            loading={loading}
+          />
+          {error && <div className="text-red-500 text-sm mt-4">{error}</div>}
+        </div>
+      </dialog>
+    )
   );
 }
