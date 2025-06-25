@@ -11,7 +11,7 @@ export default function RoleForm({ initialValues, onSubmit, loading }) {
   const handleSubmit = (values, actions) => {
     onSubmit(values, actions);
     actions.setSubmitting(false);
-    actions.resetForm(); // Reset form setelah submit
+    // Reset form akan dilakukan di parent component jika berhasil
   };
 
   return (

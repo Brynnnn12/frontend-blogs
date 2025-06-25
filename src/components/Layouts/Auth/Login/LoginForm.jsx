@@ -10,15 +10,13 @@ export default function LoginForm() {
   const initialValue = {
     email: "",
     password: "",
-  };
-
+  }; //redirect ke home jika berhasil login
   const handleSubmit = async (values, { setSubmitting }) => {
     const resultAction = await dispatch(loginUser(values));
 
     if (loginUser.fulfilled.match(resultAction)) {
       navigate("/");
     }
-
     setSubmitting(false);
   };
 

@@ -29,7 +29,7 @@ export default function Roles() {
       <RoleModal
         isOpen={modalOpen}
         onClose={handleCloseModal}
-        data={editData}
+        editData={editData}
       />
     </div>
   );

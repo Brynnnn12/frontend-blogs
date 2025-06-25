@@ -5,6 +5,7 @@ import {
   createCategory,
   updateCategory,
   resetCategoryState,
+  getCategories,
 } from "../../../../store/Categories/categorySlice";
 
 export default function CategoryModal({ isOpen, onClose, editData }) {
@@ -14,6 +15,8 @@ export default function CategoryModal({ isOpen, onClose, editData }) {
   // Tutup modal dan reset state jika sukses
   useEffect(() => {
     if (success) {
+      dispatch(getCategories({ page: 1, limit: 10 }));
+
       onClose();
       dispatch(resetCategoryState());
     }
@@ -29,9 +32,6 @@ export default function CategoryModal({ isOpen, onClose, editData }) {
 
     resetForm();
   };
-
-  console.log("✅ isOpen:", isOpen);
-  console.log("✅ editData:", editData);
 
   return (
     isOpen && (

@@ -63,6 +63,40 @@ export default function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
+
+      {/* React Hot Toast */}
+      <Toaster
+        position="top-right"
+        reverseOrder={false}
+        gutter={8}
+        containerClassName=""
+        containerStyle={{}}
+        toastOptions={{
+          // Default options
+          className: "",
+          duration: 4000,
+          style: {
+            background: "#363636",
+            color: "#fff",
+          },
+          // Custom options for success
+          success: {
+            duration: 3000,
+            theme: {
+              primary: "green",
+              secondary: "black",
+            },
+          },
+          // Custom options for error
+          error: {
+            duration: 4000,
+            theme: {
+              primary: "red",
+              secondary: "black",
+            },
+          },
+        }}
+      />
     </Router>
   );
 }

@@ -1,6 +1,10 @@
 import { configureStore } from "@reduxjs/toolkit";
-import authReducer from "./Auth/authSlice"; // Import your authSlice
-import categoryReducer from "./Categories/categorySlice"; // Import your categorySlice
+import authReducer from "./Auth/authSlice";
+import categoryReducer from "./Categories/categorySlice";
+import roleReducer from "./Roles/roleSlice";
+import commentReducer from "./Comments/commentSlice";
+import profileReducer from "./Profile/profileSlice";
+import postReducer from "./Posts/postSlice";
 
 /**
  * Ini Adalah contoh konfigurasi store Redux menggunakan Redux Toolkit.
@@ -8,7 +12,11 @@ import categoryReducer from "./Categories/categorySlice"; // Import your categor
 export default configureStore({
   reducer: {
     // Add your reducers here
-    auth: authReducer, // Assuming you have an authReducer define
-    categories: categoryReducer, // Assuming you have a categoryReducer defined
+    auth: authReducer,
+    categories: categoryReducer,
+    roles: roleReducer,
+    comments: commentReducer,
+    profile: profileReducer,
+    posts: postReducer,
   },
 });

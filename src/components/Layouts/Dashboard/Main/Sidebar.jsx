@@ -7,9 +7,12 @@ import {
   FaPenFancy,
 } from "react-icons/fa";
 import { MdDashboard } from "react-icons/md";
+import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
+import { logoutUser } from "../../../../store/Auth/authSlice";
 
 const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
+  const dispatch = useDispatch();
   const profile = {
     user: {
       role: {
@@ -22,8 +25,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    console.log("User logged out");
-    navigate("/login");
+    dispatch(logoutUser());
+    navigate("/");
   };
 
   return (

@@ -9,7 +9,6 @@ export default function AuthProvider({ children }) {
   const { loading } = useSelector((state) => state.auth);
 
   const [checked, setChecked] = useState(false);
-
   useEffect(() => {
     const checkAuth = async () => {
       await dispatch(getUser());
