@@ -1,11 +1,10 @@
 import { useState, useEffect } from "react";
 import { FiEdit, FiTrash } from "react-icons/fi";
 import { usePosts } from "../../../../hooks/Posts/usePosts";
-import { useSelector } from "react-redux";
 
 export default function PostTable({ onEdit, onCreate }) {
   const { posts, loading, pagination, getPosts, deletePost } = usePosts();
-  const { categories } = useSelector((state) => state.categories);
+
   const [page, setPage] = useState(1);
   const limit = 10;
 
@@ -20,12 +19,6 @@ export default function PostTable({ onEdit, onCreate }) {
   const handlePrev = () => {
     if (page > 1) setPage((prev) => prev - 1);
   }; // Helper function to get category name by ID
-  const getCategoryName = (categoryId) => {
-    // Convert to number to ensure proper comparison
-    const numericId = parseInt(categoryId);
-    const category = categories.find((cat) => cat.id === numericId);
-    return category ? category.name : "Unknown";
-  };
 
   const handleDelete = async (slug) => {
     if (window.confirm("Yakin ingin menghapus post ini?")) {
@@ -58,7 +51,6 @@ export default function PostTable({ onEdit, onCreate }) {
 
       <div className="overflow-x-auto">
         <table className="table w-full text-gray-700">
-          {" "}
           <thead className="bg-blue-500 text-white">
             <tr>
               <th>No</th>
@@ -66,44 +58,33 @@ export default function PostTable({ onEdit, onCreate }) {
               <th>Judul</th>
               <th>Kategori</th>
               <th>User</th>
-              <th>Dibuat Pada</th>
-              <th>Diupdate Pada</th>
               <th>Aksi</th>
             </tr>
-          </thead>{" "}
+          </thead>
           <tbody>
             {posts && posts.length > 0 ? (
               posts.map((post, index) => (
                 <tr key={post.slug || post.id || index}>
                   <td>{(page - 1) * limit + index + 1}</td>
+
                   <td>
                     {post.image ? (
                       <img
-                        src={post.image}
-                        alt={post.title || "Post image"}
-                        className="w-16 h-16 object-cover rounded-lg"
+                        src={`http://localhost:5000/uploads/posts/${post.image}`}
+                        alt={post.title || "Post Image"}
+                        className="w-16 h-16 object-cover rounded"
                       />
                     ) : (
-                      <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
-                        <span className="text-gray-400 text-xs">No Image</span>
+                      <div className="w-16 h-16 bg-gray-200 flex items-center justify-center rounded">
+                        <span className="text-gray-500">No Image</span>
                       </div>
                     )}
                   </td>
                   <td className="max-w-xs truncate">
                     {post.title || "Untitled"}
-                  </td>{" "}
-                  <td>{getCategoryName(post.categoryId) || "Unknown"}</td>
+                  </td>
+                  <td>{post.category?.name || "Uncategorized"}</td>
                   <td>{post.user?.username || post.user || "Unknown"}</td>
-                  <td>
-                    {post.created_at
-                      ? new Date(post.created_at).toLocaleDateString()
-                      : "N/A"}
-                  </td>
-                  <td>
-                    {post.updated_at
-                      ? new Date(post.updated_at).toLocaleDateString()
-                      : "N/A"}
-                  </td>
                   <td className="flex space-x-2">
                     <button
                       onClick={() => onEdit(post)}
@@ -137,7 +118,7 @@ export default function PostTable({ onEdit, onCreate }) {
           className="btn btn-sm"
         >
           Prev
-        </button>{" "}
+        </button>
         <span className="text-gray-600">
           Halaman {page} dari {pagination?.total_pages || 1}
         </span>

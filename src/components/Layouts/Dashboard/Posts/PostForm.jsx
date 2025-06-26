@@ -7,18 +7,23 @@ import { getCategories } from "../../../../store/Categories/categorySlice";
 const PostSchema = Yup.object().shape({
   title: Yup.string().required("Judul wajib diisi"),
   content: Yup.string().required("Konten wajib diisi"),
-  categoryId: Yup.string().required("Kategori wajib dipilih"),
+  categoryId: Yup.string()
+    .required("Kategori wajib dipilih")
+    .matches(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
+      "ID Kategori harus berupa UUID yang valid"
+    ),
   image: Yup.mixed()
     .nullable()
     .test("fileSize", "File terlalu besar (max 5MB)", (value) => {
-      if (!value) return true; // jika tidak ada file, valid
-      return value.size <= 5000000; // 5MB
+      if (!value) return true;
+      return value.size <= 5000000;
     })
     .test(
       "fileType",
       "Format file tidak valid (hanya JPG, PNG, GIF)",
       (value) => {
-        if (!value) return true; // jika tidak ada file, valid
+        if (!value) return true;
         return ["image/jpeg", "image/png", "image/gif"].includes(value.type);
       }
     ),
@@ -27,7 +32,9 @@ const PostSchema = Yup.object().shape({
 export default function PostForm({ initialValues, onSubmit, loading }) {
   const dispatch = useDispatch();
   const { categories } = useSelector((state) => state.categories);
-  const [imagePreview, setImagePreview] = useState(initialValues.image || null); // Load categories when component mounts
+  const [imagePreview, setImagePreview] = useState(initialValues.image || null);
+
+  // Load categories when component mounts
   useEffect(() => {
     dispatch(getCategories());
   }, [dispatch]);
@@ -40,13 +47,15 @@ export default function PostForm({ initialValues, onSubmit, loading }) {
       setImagePreview(null);
     }
   }, [initialValues.image]);
+
   const handleSubmit = (values, actions) => {
     // Create FormData for file upload
     const formData = new FormData();
     formData.append("title", values.title);
     formData.append("content", values.content);
-    // Convert categoryId to number for backend
-    formData.append("categoryId", parseInt(values.categoryId));
+    // Keep categoryId as UUID string (don't parseInt!)
+    formData.append("categoryId", values.categoryId);
+
     // Only append image if it exists and is a File object
     if (values.image && values.image instanceof File) {
       formData.append("image", values.image);
@@ -54,15 +63,14 @@ export default function PostForm({ initialValues, onSubmit, loading }) {
 
     onSubmit(formData, actions);
     actions.setSubmitting(false);
-    actions.resetForm(); // Reset form setelah submit
-    setImagePreview(null); // Reset image preview
+    actions.resetForm();
+    setImagePreview(null);
   };
 
   const handleImageChange = (event, setFieldValue) => {
     const file = event.currentTarget.files[0];
     if (file) {
       setFieldValue("image", file);
-      // Create preview URL
       const previewUrl = URL.createObjectURL(file);
       setImagePreview(previewUrl);
     }
@@ -95,6 +103,7 @@ export default function PostForm({ initialValues, onSubmit, loading }) {
               className="text-red-500 text-sm mt-1"
             />
           </div>
+
           <div className="form-control">
             <label
               htmlFor="content"
@@ -115,14 +124,15 @@ export default function PostForm({ initialValues, onSubmit, loading }) {
               component="div"
               className="text-red-500 text-sm mt-1"
             />
-          </div>{" "}
+          </div>
+
           <div className="form-control">
             <label
               htmlFor="categoryId"
               className="label font-medium text-gray-700"
             >
               Kategori Post
-            </label>{" "}
+            </label>
             <Field
               as="select"
               id="categoryId"
@@ -130,18 +140,23 @@ export default function PostForm({ initialValues, onSubmit, loading }) {
               className="select select-bordered w-full bg-white text-gray-800"
             >
               <option value="">Pilih kategori...</option>
-              {categories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
-              ))}
+              {categories && categories.length > 0 ? (
+                categories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))
+              ) : (
+                <option disabled>Loading categories...</option>
+              )}
             </Field>
             <ErrorMessage
               name="categoryId"
               component="div"
               className="text-red-500 text-sm mt-1"
             />
-          </div>{" "}
+          </div>
+
           <div className="form-control">
             <label htmlFor="image" className="label font-medium text-gray-700">
               Upload Gambar (Opsional)
@@ -192,10 +207,8 @@ export default function PostForm({ initialValues, onSubmit, loading }) {
               className="text-red-500 text-sm mt-1"
             />
           </div>
-          <div
-            className="modal-action mt-6 flex justify-between
-            items-center"
-          >
+
+          <div className="modal-action mt-6 flex justify-between items-center">
             <button
               type="submit"
               className="btn btn-primary"

@@ -7,8 +7,14 @@ import PostModal from "../../../components/Layouts/Dashboard/Posts/PostModal";
 
 export default function Posts() {
   const dispatch = useDispatch();
-  const { createPost, updatePost, loading, success, clearCurrentPost } =
-    usePosts();
+  const {
+    createPost,
+    updatePost,
+    loading,
+    success,
+    clearCurrentPost,
+    getPosts,
+  } = usePosts(); // Pastikan getPosts tersedia
   const [modalOpen, setModalOpen] = useState(false);
   const [editData, setEditData] = useState(null);
 
@@ -23,8 +29,10 @@ export default function Posts() {
       setModalOpen(false);
       setEditData(null);
       clearCurrentPost();
+      getPosts(); // Refresh data tabel setelah operasi berhasil
     }
-  }, [success, clearCurrentPost]);
+  }, [success, clearCurrentPost, getPosts]);
+
   const handleCreate = () => {
     setEditData(null);
     setModalOpen(true);
@@ -39,6 +47,7 @@ export default function Posts() {
     setModalOpen(false);
     setEditData(null);
   };
+
   const handleSubmit = async (values) => {
     try {
       if (editData) {
@@ -55,7 +64,7 @@ export default function Posts() {
 
   return (
     <div className="p-4">
-      <PostTable onEdit={handleEdit} onCreate={handleCreate} />{" "}
+      <PostTable onEdit={handleEdit} onCreate={handleCreate} />
       {/* Modal Form Tambah/Edit */}
       <PostModal
         isOpen={modalOpen}
@@ -65,6 +74,7 @@ export default function Posts() {
         }
         onSubmit={handleSubmit}
         loading={loading}
+        onSuccess={() => getPosts()} // Tambahkan callback untuk refresh tabel
       />
     </div>
   );
