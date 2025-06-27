@@ -1,15 +1,21 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { motion } from "framer-motion";
-import { FaSearch } from "react-icons/fa";
+import { useDispatch, useSelector } from "react-redux";
+import { getCategories } from "../../../store/Categories/categorySlice";
 
 const Hero = () => {
-  const popularCategories = [
-    { name: "Teknologi", url: "#" },
-    { name: "Bisnis", url: "#" },
-    { name: "Desain", url: "#" },
-    { name: "Kesehatan", url: "#" },
-    { name: "Gaya Hidup", url: "#" },
-  ];
+  const dispatch = useDispatch();
+
+  const { categories, loading, error } = useSelector(
+    (state) => state.categories
+  );
+
+  // Load categories when component mounts
+  useEffect(() => {
+    if (!categories || categories.length === 0) {
+      dispatch(getCategories());
+    }
+  }, [dispatch, categories]);
 
   return (
     <motion.section
@@ -53,7 +59,7 @@ const Hero = () => {
 
           {/* Description */}
           <motion.p
-            className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto mb-8"
+            className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto mb-12"
             initial={{ y: 30, opacity: 0 }}
             whileInView={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.4 }}
@@ -63,51 +69,49 @@ const Hero = () => {
             mulai dari teknologi, bisnis, hingga gaya hidup modern.
           </motion.p>
 
-          {/* Search Bar */}
-          <motion.div
-            className="flex justify-center max-w-md mx-auto mb-12"
-            initial={{ y: 30, opacity: 0 }}
-            whileInView={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.6 }}
-            viewport={{ once: false, margin: "-100px 0px 0px 0px" }}
-          >
-            <div className="relative w-full">
-              <input
-                type="text"
-                placeholder="Cari artikel..."
-                className="w-full px-6 py-4 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              />
-              <button className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition-colors">
-                <FaSearch className="text-lg" />
-              </button>
-            </div>
-          </motion.div>
-
           {/* Popular Categories */}
           <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.8 }}
+            transition={{ duration: 0.6, delay: 0.6 }}
             viewport={{ once: false, margin: "-100px 0px 0px 0px" }}
           >
             <p className="text-white/80 mb-4 text-sm">Kategori Populer:</p>
-            <div className="flex flex-wrap justify-center gap-3">
-              {popularCategories.map((category, index) => (
-                <motion.a
-                  key={index}
-                  href={category.url}
-                  className="px-4 py-2 text-sm rounded-full border border-white/30 text-white hover:bg-blue-500 hover:border-blue-500 transition-colors"
-                  initial={{ y: 20, opacity: 0 }}
-                  whileInView={{ y: 0, opacity: 1 }}
-                  transition={{ duration: 0.3, delay: 0.9 + index * 0.1 }}
-                  viewport={{ once: false, margin: "-50px 0px 0px 0px" }}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  {category.name}
-                </motion.a>
-              ))}
-            </div>
+
+            {loading && (
+              <div className="flex justify-center">
+                <div className="loading loading-spinner loading-sm text-white"></div>
+              </div>
+            )}
+
+            {error && (
+              <p className="text-red-400 text-sm">Gagal memuat kategori</p>
+            )}
+
+            {!loading && !error && categories && categories.length > 0 && (
+              <div className="flex flex-wrap justify-center gap-3">
+                {categories.slice(0, 5).map((category, index) => (
+                  <motion.button
+                    key={category.id || index}
+                    className="px-4 py-2 text-sm rounded-full border border-white/30 text-white hover:bg-blue-500 hover:border-blue-500 transition-colors"
+                    initial={{ y: 20, opacity: 0 }}
+                    whileInView={{ y: 0, opacity: 1 }}
+                    transition={{ duration: 0.3, delay: 0.7 + index * 0.1 }}
+                    viewport={{ once: false, margin: "-50px 0px 0px 0px" }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    {category.name}
+                  </motion.button>
+                ))}
+              </div>
+            )}
+
+            {!loading && !error && (!categories || categories.length === 0) && (
+              <p className="text-white/60 text-sm">
+                Belum ada kategori tersedia
+              </p>
+            )}
           </motion.div>
         </div>
       </div>

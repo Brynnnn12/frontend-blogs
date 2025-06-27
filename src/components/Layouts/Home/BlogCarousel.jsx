@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
+import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { usePosts } from "../../../hooks/Posts/usePosts";
 
@@ -213,19 +214,12 @@ const BlogCarousel = () => {
                           ? post.content.substring(0, 150) + "..."
                           : "Tidak ada konten tersedia"}
                       </p>
-                      <motion.button
-                        whileTap={{ scale: 0.97 }}
-                        whileHover={{ scale: 1.03 }}
-                        className="mt-auto w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-300 shadow"
-                        onClick={() => {
-                          // Navigate to post detail
-                          window.location.href = `/post/${
-                            post.slug || post.id
-                          }`;
-                        }}
+                      <Link
+                        to={`/blog/${post.slug || post.id}`}
+                        className="mt-auto w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-300 shadow text-center block"
                       >
                         Baca Selengkapnya
-                      </motion.button>
+                      </Link>
                     </div>
                   </motion.div>
                 ))}

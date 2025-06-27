@@ -9,6 +9,7 @@ import LoadingSpinner from "./components/Animations/LoadingSpinner";
 import AuthLayout from "./layouts/Auth";
 import ProtectedRoute from "./components/Layouts/Protected/ProtectedRoute"; // aktifkan kembali
 import { Toaster } from "react-hot-toast";
+import BlogPage from "./components/Layouts/Home/Posts/BlogPage";
 
 // Lazy Layouts
 const DashboardLayout = lazy(() => import("./layouts/Dashboard"));
@@ -35,6 +36,7 @@ export default function App() {
           {/* 🌐 Public (Home) */}
           <Route element={<HomeLayout />}>
             <Route index element={<Home />} />
+            <Route path="/blog/:slug" element={<BlogPage />} />
           </Route>
 
           {/* 🔐 Auth Routes (Login/Register) */}
