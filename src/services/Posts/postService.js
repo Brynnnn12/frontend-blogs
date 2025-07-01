@@ -6,6 +6,13 @@ export const getPostsApi = async (params = {}) => {
   return response.data;
 };
 
+// Get MY Post
+
+export const getMyPostsApi = async (params = {}) => {
+  const response = await api.get("/posts/my-posts", { params });
+  return response.data;
+};
+
 // Get post by slug
 export const getPostBySlugApi = async (slug) => {
   const response = await api.get(`/posts/${slug}`);

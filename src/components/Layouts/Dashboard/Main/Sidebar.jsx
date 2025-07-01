@@ -11,17 +11,8 @@ import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { logoutUser } from "../../../../store/Auth/authSlice";
 
-const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
+const Sidebar = ({ sidebarOpen, setSidebarOpen, isAdmin }) => {
   const dispatch = useDispatch();
-  const profile = {
-    user: {
-      role: {
-        name: "admin", // Ganti ke "user" untuk melihat perbedaan tampilan
-      },
-    },
-  };
-
-  const role = profile?.user?.role?.name;
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -74,16 +65,15 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
 
             {/* Categories - semua role */}
             <Link
-              to="/dashboard/categories"
+              to="/dashboard/posts"
               onClick={() => setSidebarOpen(false)}
-              className="flex items-center px-4 py-3 text-white hover:bg-blue-700 rounded-lg transition-colors"
+              className="flex items-center px-4 py-3 text-white hover:bg-blue-700 rounded-lg transition-colors mt-2"
             >
-              <FaTags className="w-5 h-5" />
-              <span className="ml-3">Categories</span>
+              <FaPenFancy className="w-5 h-5" />
+              <span className="ml-3">Posts</span>
             </Link>
-
             {/* Admin only */}
-            {role === "admin" && (
+            {isAdmin && (
               <>
                 <Link
                   to="/dashboard/roles"
@@ -95,12 +85,12 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                 </Link>
 
                 <Link
-                  to="/dashboard/posts"
+                  to="/dashboard/categories"
                   onClick={() => setSidebarOpen(false)}
-                  className="flex items-center px-4 py-3 text-white hover:bg-blue-700 rounded-lg transition-colors mt-2"
+                  className="flex items-center px-4 py-3 text-white hover:bg-blue-700 rounded-lg transition-colors"
                 >
-                  <FaPenFancy className="w-5 h-5" />
-                  <span className="ml-3">Posts</span>
+                  <FaTags className="w-5 h-5" />
+                  <span className="ml-3">Categories</span>
                 </Link>
 
                 <Link

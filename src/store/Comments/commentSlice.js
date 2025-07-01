@@ -5,30 +5,14 @@ import {
   updateCommentApi,
   deleteCommentApi,
 } from "../../services/Comments/commentService";
-import toast from "react-hot-toast";
 
-// Initial state
-const initialState = {
-  comments: [],
-  comment: null,
-  pagination: {
-    currentPage: 1,
-    totalPages: 1,
-    totalItems: 0,
-    perPage: 10,
-  },
-  success: false,
-  loading: false,
-  error: null,
-};
-
-// Async actions
+// Async thunks
 export const getComments = createAsyncThunk(
   "comments/getComments",
-  async (params = {}, { rejectWithValue }) => {
+  async (slug, { rejectWithValue }) => {
     try {
-      const response = await getCommentsApi(params);
-      return response.data.data; // Sesuaikan dengan struktur response API
+      const response = await getCommentsApi(slug);
+      return response.data;
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to fetch comments"
@@ -39,13 +23,11 @@ export const getComments = createAsyncThunk(
 
 export const createComment = createAsyncThunk(
   "comments/createComment",
-  async (commentData, { rejectWithValue }) => {
+  async ({ slug, content }, { rejectWithValue }) => {
     try {
-      const response = await createCommentApi(commentData);
-      toast.success("Comment created successfully");
-      return response.data.data; // Sesuaikan dengan struktur response API
+      const response = await createCommentApi(slug, { content });
+      return response.data;
     } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to create comment");
       return rejectWithValue(
         error.response?.data?.message || "Failed to create comment"
       );
@@ -55,13 +37,11 @@ export const createComment = createAsyncThunk(
 
 export const updateComment = createAsyncThunk(
   "comments/updateComment",
-  async ({ id, commentData }, { rejectWithValue }) => {
+  async ({ id, content }, { rejectWithValue }) => {
     try {
-      const response = await updateCommentApi(id, commentData);
-      toast.success("Comment updated successfully");
-      return response.data.data; // Sesuaikan dengan struktur response API
+      const response = await updateCommentApi(id, { content });
+      return response.data;
     } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to update comment");
       return rejectWithValue(
         error.response?.data?.message || "Failed to update comment"
       );
@@ -74,10 +54,8 @@ export const deleteComment = createAsyncThunk(
   async (id, { rejectWithValue }) => {
     try {
       await deleteCommentApi(id);
-      toast.success("Comment deleted successfully");
-      return { id }; // Return id for deletion from state
+      return id;
     } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to delete comment");
       return rejectWithValue(
         error.response?.data?.message || "Failed to delete comment"
       );
@@ -85,124 +63,95 @@ export const deleteComment = createAsyncThunk(
   }
 );
 
-// Slice
 const commentSlice = createSlice({
   name: "comments",
-  initialState,
+  initialState: {
+    comments: [],
+    loading: false,
+    error: null,
+    success: false,
+    pagination: {
+      page: 1,
+      limit: 10,
+      total: 0,
+      totalPages: 0,
+    },
+  },
   reducers: {
-    resetComments(state) {
+    resetCommentState: (state) => {
+      state.success = false;
+      state.error = null;
+    },
+    clearComments: (state) => {
       state.comments = [];
-      state.pagination = {
-        currentPage: 1,
-        totalPages: 1,
-        totalItems: 0,
-        perPage: 10,
-      };
-      state.success = false;
-      state.loading = false;
-      state.error = null;
-    },
-    resetCommentState(state) {
-      state.comment = null;
-      state.success = false;
-      state.loading = false;
-      state.error = null;
-    },
-    clearError(state) {
-      state.error = null;
     },
   },
   extraReducers: (builder) => {
     builder
+      // Get Comments
       .addCase(getComments.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(getComments.fulfilled, (state, action) => {
         state.loading = false;
-        // Asumsi response API: { comments: [...], pagination: {...} }
-        if (
-          action.payload &&
-          action.payload.comments &&
-          action.payload.pagination
-        ) {
-          state.comments = action.payload.comments;
-          state.pagination = action.payload.pagination;
-        } else if (Array.isArray(action.payload)) {
-          // Fallback jika response hanya array comments
-          state.comments = action.payload;
-          // Maintain pagination state atau set default
-          state.pagination = {
-            currentPage: 1,
-            totalPages: 1,
-            totalItems: action.payload.length,
-            perPage: 10,
-          };
-        } else {
-          // Fallback untuk response kosong atau format tidak dikenal
-          state.comments = [];
-          state.pagination = {
-            currentPage: 1,
-            totalPages: 1,
-            totalItems: 0,
-            perPage: 10,
-          };
-        }
-        state.success = true;
-        state.error = null;
+        state.comments = action.payload.data || [];
+        state.pagination = {
+          page: action.payload.page,
+          limit: action.payload.limit,
+          total: action.payload.total,
+          totalPages: action.payload.totalPages,
+        };
       })
       .addCase(getComments.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
+      // Create Comment
       .addCase(createComment.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(createComment.fulfilled, (state, action) => {
         state.loading = false;
-        if (action.payload) {
-          state.comments.push(action.payload);
-        }
         state.success = true;
-        state.error = null;
+        // Add new comment to the beginning of the array
+        state.comments.unshift(action.payload.data);
       })
       .addCase(createComment.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
+      // Update Comment
       .addCase(updateComment.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(updateComment.fulfilled, (state, action) => {
         state.loading = false;
-        if (action.payload && action.payload.id) {
-          const index = state.comments.findIndex(
-            (comment) => comment.id === action.payload.id
-          );
-          if (index !== -1) {
-            state.comments[index] = action.payload;
-          }
-        }
         state.success = true;
-        state.error = null;
+        const index = state.comments.findIndex(
+          (comment) => comment.id === action.payload.data.id
+        );
+        if (index !== -1) {
+          state.comments[index] = action.payload.data;
+        }
       })
       .addCase(updateComment.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
+      // Delete Comment
       .addCase(deleteComment.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(deleteComment.fulfilled, (state, action) => {
         state.loading = false;
-        state.comments = state.comments.filter(
-          (comment) => comment.id !== action.payload.id
-        );
         state.success = true;
-        state.error = null;
+        state.comments = state.comments.filter(
+          (comment) => comment.id !== action.payload
+        );
       })
       .addCase(deleteComment.rejected, (state, action) => {
         state.loading = false;
@@ -211,6 +160,5 @@ const commentSlice = createSlice({
   },
 });
 
-export const { resetComments, resetCommentState, clearError } =
-  commentSlice.actions;
+export const { resetCommentState, clearComments } = commentSlice.actions;
 export default commentSlice.reducer;

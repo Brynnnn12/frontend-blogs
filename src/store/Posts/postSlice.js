@@ -6,6 +6,7 @@ import {
   createPostApi,
   updatePostApi,
   deletePostApi,
+  getMyPostsApi,
 } from "../../services/Posts/postService";
 
 // Async thunks
@@ -23,6 +24,22 @@ export const getPosts = createAsyncThunk(
   }
 );
 
+// ...existing code...
+export const getMyPosts = createAsyncThunk(
+  "posts/getMyPosts",
+  async (params = {}, { rejectWithValue }) => {
+    try {
+      const response = await getMyPostsApi(params);
+      return response;
+    } catch (error) {
+      console.error("postSlice - getMyPosts error:", error);
+      return rejectWithValue(
+        error.response?.data?.message || "Gagal mengambil data posts"
+      );
+    }
+  }
+);
+// ...existing code...
 export const getPostBySlug = createAsyncThunk(
   "posts/getPostBySlug",
   async (slug, { rejectWithValue }) => {
@@ -81,6 +98,7 @@ export const deletePost = createAsyncThunk(
 
 const initialState = {
   posts: [],
+  myPosts: [],
   currentPost: null,
   loading: false,
   error: null,
@@ -119,14 +137,42 @@ const postSlice = createSlice({
       .addCase(getPosts.fulfilled, (state, action) => {
         state.loading = false;
         state.posts = action.payload.data || action.payload;
-        state.pagination = action.payload.pagination || state.pagination;
+        state.pagination = {
+          current_page: action.payload.page,
+          per_page: action.payload.limit,
+          total: action.payload.total,
+          total_pages: action.payload.totalPages,
+        };
         state.error = null;
       })
       .addCase(getPosts.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
         toast.error(action.payload || "Gagal mengambil data posts");
-      }) // Get Post By Slug
+      })
+      // Get My Posts
+      .addCase(getMyPosts.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getMyPosts.fulfilled, (state, action) => {
+        state.loading = false;
+        state.myPosts = action.payload.data || action.payload;
+        state.pagination = {
+          current_page: action.payload.page,
+          per_page: action.payload.limit,
+          total: action.payload.total,
+          total_pages: action.payload.totalPages,
+        };
+        state.error = null;
+      })
+      .addCase(getMyPosts.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+        toast.error(action.payload || "Gagal mengambil data posts");
+      })
+
+      // Get Post By Slug
       .addCase(getPostBySlug.pending, (state) => {
         state.loading = true;
         state.error = null;

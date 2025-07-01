@@ -9,11 +9,14 @@ import {
   resetPostState,
   clearError,
   clearCurrentPost,
+  getMyPosts,
 } from "../../store/Posts/postSlice";
 
 export const usePosts = () => {
   const dispatch = useDispatch();
-  const { posts, currentPost, loading, error, success, pagination } =
+
+  // Tambahkan myPosts ke destructuring
+  const { posts, myPosts, currentPost, loading, error, success, pagination } =
     useSelector((state) => state.posts);
 
   const handleGetPosts = useCallback(
@@ -22,6 +25,15 @@ export const usePosts = () => {
     },
     [dispatch]
   );
+
+  //my Posts
+  const handleGetMyPosts = useCallback(
+    (params = {}) => {
+      return dispatch(getMyPosts({ ...params, myPosts: true }));
+    },
+    [dispatch]
+  );
+
   const handleGetPostBySlug = useCallback(
     (slug) => {
       return dispatch(getPostBySlug(slug));
@@ -35,6 +47,7 @@ export const usePosts = () => {
     },
     [dispatch]
   );
+
   const handleUpdatePost = useCallback(
     (slug, postData) => {
       return dispatch(updatePost({ slug, postData }));
@@ -60,14 +73,17 @@ export const usePosts = () => {
   const handleClearCurrentPost = useCallback(() => {
     dispatch(clearCurrentPost());
   }, [dispatch]);
+
   return {
     posts,
+    myPosts, // Tambahkan myPosts ke return object
     currentPost,
     loading,
     error,
     success,
     pagination,
     getPosts: handleGetPosts,
+    getMyPosts: handleGetMyPosts,
     getPostBySlug: handleGetPostBySlug,
     createPost: handleCreatePost,
     updatePost: handleUpdatePost,

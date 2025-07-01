@@ -1,12 +1,12 @@
 import { useSelector } from "react-redux";
 
 export default function useComments() {
-  const { comments, loading, error, pagination } = useSelector(
+  const { comment, loading, error, pagination } = useSelector(
     (state) => state.comments
   );
 
   return {
-    comments,
+    comment,
     loading,
     error,
     pagination,

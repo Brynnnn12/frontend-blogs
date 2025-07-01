@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useCallback } from "react";
+import React, { useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -14,18 +14,12 @@ import {
   getComments,
   createComment,
   resetCommentState,
-  clearComments,
 } from "../../../../store/Comments/commentSlice";
-import CommentList from "./Common/CommentList";
 import CommentForm from "../../Dashboard/Comments/CommentForm";
 
 const BlogPage = () => {
   const { slug } = useParams();
   const dispatch = useDispatch();
-
-  const { isAuthenticated, user: currentUser } = useSelector(
-    (state) => state.auth
-  );
 
   const {
     currentPost,
@@ -42,74 +36,47 @@ const BlogPage = () => {
     error: commentsError,
   } = useSelector((state) => state.comments);
 
-  // Comments sudah difilter di backend berdasarkan slug, tidak perlu filter lagi
-  const postComments = useMemo(() => {
-    return comments || [];
-  }, [comments]);
+  //filter komentar berdasarkan postId
+  const postComments = comments.filter(
+    (comment) => comment.postId === currentPost?.id
+  );
 
-  // Load post by slug
   useEffect(() => {
     if (slug) {
       getPostBySlug(slug);
     }
-  }, [slug]); // Hapus getPostBySlug dari dependency untuk mencegah infinite loop
+  }, [slug, getPostBySlug]);
 
-  // Load comments berdasarkan slug
+  // Load comments when post is loaded
   useEffect(() => {
-    if (slug) {
-      // Clear comments dari post sebelumnya
-      dispatch(clearComments());
-      // Load comments untuk post ini berdasarkan slug
-      dispatch(getComments(slug));
+    if (currentPost?.id) {
+      dispatch(getComments());
     }
-  }, [slug, dispatch]);
+  }, [currentPost, dispatch]);
 
-  // Reset state setelah berhasil membuat comment
+  // Reset state after successful comment creation
   useEffect(() => {
     if (success) {
       dispatch(resetCommentState());
-      // Reload comments setelah berhasil membuat comment
-      if (slug) {
-        dispatch(getComments(slug));
-      }
+      // Reload comments to get the latest data
+      dispatch(getComments());
     }
-  }, [success, dispatch, slug]);
-
-  // Callback untuk refresh comments setelah update/delete
-  const handleCommentUpdate = useCallback(() => {
-    if (slug) {
-      dispatch(getComments(slug));
-    }
-  }, [slug, dispatch]);
+  }, [success, dispatch]);
 
   // Submit handler for comment form
-  const handleSubmit = useCallback(
-    async (values, { resetForm }) => {
-      // Cek apakah user sudah login
-      if (!isAuthenticated) {
-        alert("Silakan login terlebih dahulu untuk mengomentari artikel ini");
-        return;
-      }
+  const handleSubmit = async (values, { resetForm }) => {
+    try {
+      const commentData = {
+        content: values.content,
+        postId: currentPost.id,
+      };
 
-      if (!slug) {
-        console.error("Slug tidak tersedia");
-        return;
-      }
-
-      try {
-        const commentData = {
-          slug: slug,
-          content: values.content,
-        };
-
-        await dispatch(createComment(commentData)).unwrap();
-        resetForm();
-      } catch (error) {
-        console.error("Failed to create comment:", error);
-      }
-    },
-    [slug, dispatch, isAuthenticated]
-  );
+      await dispatch(createComment(commentData)).unwrap();
+      resetForm();
+    } catch (error) {
+      console.error("Failed to create comment:", error);
+    }
+  };
 
   if (postLoading) {
     return (
@@ -329,59 +296,93 @@ const BlogPage = () => {
             Komentar ({postComments.length})
           </h2>
 
-          {/* Debug Info - bisa dihapus nanti */}
-          <div className="mb-4 p-4 bg-yellow-100 text-black rounded-lg text-sm">
-            <strong>Debug Auth Info:</strong>
-            <br />
-            Is Authenticated: {isAuthenticated ? "Yes" : "No"}
-            <br />
-            Current User: {currentUser ? currentUser.username : "Not logged in"}
-            <br />
-            User ID: {currentUser?.id || "undefined"}
-          </div>
-
-          {/* Comment Form - Conditional rendering based on authentication */}
-          {isAuthenticated ? (
-            <motion.div
-              className="bg-white p-6 rounded-xl shadow-md mb-8"
-              whileHover={{ y: -2 }}
-              transition={{ type: "spring", stiffness: 300 }}
-            >
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                Tulis Komentar
-              </h3>
-              <CommentForm
-                initialValues={{ content: "" }}
-                onSubmit={handleSubmit}
-                loading={commentsLoading}
-                isEdit={false}
-              />
-            </motion.div>
-          ) : (
-            <motion.div
-              className="bg-gray-100 p-6 rounded-xl shadow-md mb-8 text-center"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-            >
-              <p className="text-gray-600 mb-4">
-                Silakan login untuk mengomentari artikel ini
-              </p>
-              <Link
-                to="/login"
-                className="inline-flex items-center bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                Login Sekarang
-              </Link>
-            </motion.div>
-          )}
+          {/* Comment Form */}
+          <motion.div
+            className="bg-white p-6 rounded-xl shadow-md mb-8"
+            whileHover={{ y: -2 }}
+            transition={{ type: "spring", stiffness: 300 }}
+          >
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">
+              Tulis Komentar
+            </h3>
+            <CommentForm
+              initialValues={{ content: "" }}
+              onSubmit={handleSubmit}
+              loading={commentsLoading}
+              isEdit={false}
+            />
+          </motion.div>
 
           {/* Comments List */}
-          <CommentList
-            comments={postComments}
-            loading={commentsLoading}
-            currentUser={currentUser}
-            onCommentUpdate={handleCommentUpdate}
-          />
+          <div className="space-y-6">
+            {commentsLoading ? (
+              <div className="flex justify-center py-8">
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                  className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full"
+                ></motion.div>
+              </div>
+            ) : postComments.length > 0 ? (
+              <AnimatePresence>
+                {postComments.map((comment) => (
+                  <motion.div
+                    key={comment.id}
+                    className="bg-white p-6 rounded-xl shadow-sm"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 20 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <div className="flex items-start">
+                      <img
+                        src={
+                          comment.user?.avatar ||
+                          `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                            comment.user?.username || "User"
+                          )}&background=random`
+                        }
+                        alt={comment.user?.username || "User"}
+                        className="w-10 h-10 rounded-full mr-4"
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-center mb-2">
+                          <h3 className="font-semibold text-gray-900 mr-2">
+                            {comment.user?.username || "Anonymous"}
+                          </h3>
+                          <span className="text-xs text-gray-500">
+                            {new Date(comment.createdAt).toLocaleDateString(
+                              "id-ID",
+                              {
+                                day: "numeric",
+                                month: "short",
+                                year: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              }
+                            )}
+                          </span>
+                        </div>
+                        <p className="text-gray-700 leading-relaxed">
+                          {comment.content}
+                        </p>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            ) : (
+              <motion.div
+                className="text-center py-8"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+              >
+                <p className="text-gray-500">
+                  Belum ada komentar. Jadilah yang pertama berkomentar!
+                </p>
+              </motion.div>
+            )}
+          </div>
 
           {/* Error message for comments */}
           {commentsError && (
@@ -390,7 +391,7 @@ const BlogPage = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
-              Gagal memuat komentar: {commentsError}
+              Gagal memuat komentar. Silakan coba lagi.
             </motion.div>
           )}
         </motion.section>

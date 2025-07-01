@@ -36,7 +36,6 @@ export default function App() {
           {/* 🌐 Public (Home) */}
           <Route element={<HomeLayout />}>
             <Route index element={<Home />} />
-            <Route path="/blog/:slug" element={<BlogPage />} />
           </Route>
 
           {/* 🔐 Auth Routes (Login/Register) */}
@@ -46,6 +45,15 @@ export default function App() {
           </Route>
 
           {/* 🔒 Protected Routes */}
+          <Route
+            path="/blog/:slug"
+            element={
+              <ProtectedRoute>
+                <BlogPage />
+              </ProtectedRoute>
+            }
+          />
+
           <Route
             element={
               <ProtectedRoute>

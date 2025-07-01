@@ -56,7 +56,7 @@ export const getUser = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const res = await getMeApi();
-      return res.data.data.user;
+      return res.data.data;
     } catch (err) {
       return rejectWithValue(err.response?.data);
     }

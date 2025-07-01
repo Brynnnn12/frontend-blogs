@@ -1,17 +1,10 @@
 import { FaUserCircle } from "react-icons/fa";
 import { FiMenu } from "react-icons/fi";
 
-const Header = ({ sidebarOpen, setSidebarOpen }) => {
-  // Data dummy langsung di dalam komponen
-  const profile = {
-    user: {
-      username: "Brillyan", // ubah sesuai kebutuhan
-    },
-    avatar: null, // atau isi dengan URL gambar
-  };
-
-  const username = profile?.user?.username || "Guest";
-  const avatar = profile?.avatar;
+const Header = ({ sidebarOpen, setSidebarOpen, currentUser, isAdmin }) => {
+  // Menggunakan data dari props alih-alih data dummy
+  const username = currentUser?.username || currentUser?.name || "Guest";
+  const avatar = currentUser?.avatar || currentUser?.profileImage;
 
   return (
     <header className="bg-white shadow-sm z-10">
@@ -29,6 +22,11 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
           <div className="text-sm sm:text-base font-semibold text-primary">
             <span className="badge badge-primary badge-outline px-4 py-2 shadow-sm">
               Selamat datang, {username}
+              {isAdmin && (
+                <span className="ml-2 badge badge-secondary badge-xs">
+                  Admin
+                </span>
+              )}
             </span>
           </div>
         </div>
